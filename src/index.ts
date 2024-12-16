@@ -1,7 +1,8 @@
-import { MemberInfoDto } from './DTO/MemberInfoDto';
-import { AddressDto } from './DTO/AddressDto';
-import { plainToClass, classToPlain } from './helper/transformer';
-import { memberInfoMappings, addressMappings } from './helper/mappings';
+import 'reflect-metadata';
+import { MemberInfoDto } from './dtos/MemberInfoDto';
+import { AddressDto } from './dtos/AddressDto';
+import { plainToClassDynamic, classToPlainDynamic } from './transformer';
+import './mapping'
 
 function main() {
   // === API 응답(JSON) ===
@@ -14,14 +15,7 @@ function main() {
   };
 
   // JSON → 클래스 인스턴스
-  const memberInfoInstance = plainToClass(
-    MemberInfoDto,
-    apiResponse,
-    memberInfoMappings,
-    {
-      address: addressMappings, // 중첩 객체 매핑
-    }
-  );
+  const memberInfoInstance = plainToClassDynamic(MemberInfoDto, apiResponse);
 
   console.log('--- JSON → 클래스 인스턴스 ---');
   console.log('instance instanceof MemberInfoDto:', memberInfoInstance instanceof MemberInfoDto); // true
@@ -35,22 +29,15 @@ function main() {
   memberInfoInstance.address.street = '부산시 해운대구';
   memberInfoInstance.address.city = '부산';
 
-  const requestPayload = classToPlain(
-    memberInfoInstance,
-    memberInfoMappings,
-    {
-      address: addressMappings, // 중첩 객체 매핑
-    }
-  );
-
+  const requestPayload = classToPlainDynamic(memberInfoInstance);
   console.log('\n--- 클래스 인스턴스 → JSON ---');
-  console.log(requestPayload);
+  console.log(JSON.stringify(requestPayload, null, 2));
   /*
   {
-    MBR_INFO: '김철수',
-    ADDRESS: {
-      STREET: '부산시 해운대구',
-      CITY: '부산',
+    "MBR_INFO": "김철수",
+    "ADDRESS": {
+      "STREET": "부산시 해운대구",
+      "CITY": "부산"
     }
   }
   */
