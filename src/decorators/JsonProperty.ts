@@ -25,13 +25,13 @@ export function JsonProperty(jsonKey: string, type?: Function) {
     // 클래스 생성자 가져오기
     const cls = target.constructor;
 
-    // 기존 매핑 정보 가져오기
-    let mappings: EnhancedKeyMapping[] = Reflect.getMetadata(JSON_PROPERTY_KEY, cls) || [];
+     // 기존 매핑 정보 가져오기
+    const mappings: EnhancedKeyMapping[] = MappingRegistry.getMappings(cls) || [];
 
-    // 새로운 매핑 정보 추가
+     // 새로운 매핑 정보 추가
     mappings.push({ jsonKey, classKey: propertyKey, type });
 
-    // 매핑 레지스트리에 등록
+     // 매핑 레지스트리에 등록
     MappingRegistry.registerMapping(cls, mappings);
   };
 }
