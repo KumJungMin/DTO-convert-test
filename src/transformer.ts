@@ -21,10 +21,11 @@ export function plainToClassDynamicEnhanced<T>(cls: new () => T, plainObj: any):
 
     if (value !== undefined) {
       try {
+        const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
+
         if (type) {
-          // 배열인지 확인
-          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
-          if (propertyType === Array && Array.isArray(value)) {
+          const isArray = propertyType === Array && Array.isArray(value)
+          if (isArray) {
             if (!type) {
               throw new MappingError(`Type information is missing for array property '${classKey}'`);
             }
@@ -32,15 +33,12 @@ export function plainToClassDynamicEnhanced<T>(cls: new () => T, plainObj: any):
             (instance as any)[classKey] = value.map((item: any) => {
               return plainToClassDynamicEnhanced(type as any, item);
             });
-          }
-          // 중첩된 객체인지 확인
-          else {
-            // 재귀적으로 변환
+          } else {
+            // 중첩된 객체인지 확인 - 재귀적으로 변환
             (instance as any)[classKey] = plainToClassDynamicEnhanced(type as any, value);
           }
         } else {
           // 기본 타입 처리 (string, number, boolean, Date 등)
-          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
           if (propertyType === Date) {
             (instance as any)[classKey] = new Date(value);
           } else {
@@ -78,9 +76,10 @@ export function classToPlainDynamicEnhanced<T>(instance: T): any {
 
     if (value !== undefined) {
       try {
+        const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
         if (type) {
-          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
-          if (propertyType === Array && Array.isArray(value)) {
+          const isArray = propertyType === Array && Array.isArray(value)
+          if (isArray) {
             if (!type) {
               throw new MappingError(`Type information is missing for array property '${classKey}'`);
             }
@@ -95,7 +94,6 @@ export function classToPlainDynamicEnhanced<T>(instance: T): any {
           }
         } else {
           // 기본 타입 처리
-          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
           if (propertyType === Date) {
             (plainObj as any)[jsonKey] = (value as Date).toISOString();
           } else {
