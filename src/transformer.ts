@@ -2,7 +2,7 @@ import MappingRegistry from './mappingRegistry';
 import { MappingError } from './errors/MappingError';
 
 /**
- * JSON 객체를 클래스 인스턴스로 변환하는 함수 (향상된 버전)
+ * JSON 객체를 클래스 인스턴스로 변환하는 함수
  * @param cls 클래스 생성자
  * @param plainObj 변환할 JSON 객체
  * @returns 클래스 인스턴스
@@ -29,16 +29,13 @@ export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
             if (!type) {
               throw new MappingError(`Type information is missing for array property '${classKey}'`);
             }
-            // 배열 요소 타입으로 변환
             (instance as any)[classKey] = value.map((item: any) => {
               return plainToClassDynamic(type as any, item);
             });
           } else {
-            // 중첩된 객체인지 확인 - 재귀적으로 변환
             (instance as any)[classKey] = plainToClassDynamic(type as any, value);
           }
         } else {
-          // 기본 타입 처리 (string, number, boolean, Date 등)
           if (propertyType === Date) {
             (instance as any)[classKey] = new Date(value);
           } else {
@@ -83,17 +80,14 @@ export function classToPlainDynamic<T>(instance: T): any {
             if (!type) {
               throw new MappingError(`Type information is missing for array property '${classKey}'`);
             }
-            // 배열 요소 타입으로 변환
             plainObj[jsonKey] = value.map((item: any) => {
               return classToPlainDynamic(item);
             });
           }
           else {
-            // 재귀적으로 변환
             plainObj[jsonKey] = classToPlainDynamic(value);
           }
         } else {
-          // 기본 타입 처리
           if (propertyType === Date) {
             (plainObj as any)[jsonKey] = (value as Date).toISOString();
           } else {

@@ -1,4 +1,4 @@
-import 'reflect-metadata'; // Reflect Metadata 활성화
+import 'reflect-metadata';
 import { MemberInfoDto } from './dtos/MemberInfoDto';
 import { AddressDto } from './dtos/AddressDto';
 import { ItemDto } from './dtos/ItemDto';

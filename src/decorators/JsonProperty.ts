@@ -3,9 +3,6 @@ import MappingRegistry from '../mappingRegistry';
 
 const JSON_PROPERTY_KEY = Symbol('jsonProperty');
 
-/**
- * KeyMapping 인터페이스 정의
- */
 export interface KeyMapping {
   jsonKey: string;
   classKey: string;
@@ -19,19 +16,12 @@ export interface KeyMapping {
  */
 export function JsonProperty(jsonKey: string, type?: Function) {
   return function (target: any, propertyKey: string) {
-    // 메타데이터 정의
     Reflect.defineMetadata(JSON_PROPERTY_KEY, { jsonKey, type }, target, propertyKey);
 
-    // 클래스 생성자 가져오기
     const cls = target.constructor;
-
-     // 기존 매핑 정보 가져오기
     const mappings: KeyMapping[] = MappingRegistry.getMappings(cls) || [];
 
-     // 새로운 매핑 정보 추가
     mappings.push({ jsonKey, classKey: propertyKey, type });
-
-     // 매핑 레지스트리에 등록
     MappingRegistry.registerMapping(cls, mappings);
   };
 }
