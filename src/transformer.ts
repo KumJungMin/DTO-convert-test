@@ -1,32 +1,55 @@
 import MappingRegistry from './mappingRegistry';
+import { MappingError } from './errors/MappingError';
 
 /**
- * JSON 객체를 클래스 인스턴스로 변환하는 함수
+ * JSON 객체를 클래스 인스턴스로 변환하는 함수 (향상된 버전)
  * @param cls 클래스 생성자
  * @param plainObj 변환할 JSON 객체
  * @returns 클래스 인스턴스
  */
-export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
-  const instance = new cls() as any;
+export function plainToClassDynamicEnhanced<T>(cls: new () => T, plainObj: any): T {
+  const instance = new cls();
   const mappings = MappingRegistry.getMappings(cls);
 
   if (!mappings) {
-    throw new Error(`No mappings registered for class ${cls.name}`);
+    throw new MappingError(`No mappings registered for class ${cls.name}`);
   }
 
   mappings.forEach((mapping) => {
-    const { jsonKey, classKey } = mapping;
+    const { jsonKey, classKey, type } = mapping;
     const value = plainObj[jsonKey];
 
     if (value !== undefined) {
-      const propertyType = Reflect.getMetadata('design:type', instance, classKey);
-
-      // 중첩된 객체인지 확인
-      if (typeof propertyType === 'function' && propertyType !== String && propertyType !== Number && propertyType !== Boolean && propertyType !== Date) {
-        // 재귀적으로 변환
-        instance[classKey] = plainToClassDynamic(propertyType, value);
-      } else {
-        instance[classKey] = value;
+      try {
+        if (type) {
+          // 배열인지 확인
+          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
+          if (propertyType === Array && Array.isArray(value)) {
+            if (!type) {
+              throw new MappingError(`Type information is missing for array property '${classKey}'`);
+            }
+            // 배열 요소 타입으로 변환
+            (instance as any)[classKey] = value.map((item: any) => {
+              return plainToClassDynamicEnhanced(type as any, item);
+            });
+          }
+          // 중첩된 객체인지 확인
+          else {
+            // 재귀적으로 변환
+            (instance as any)[classKey] = plainToClassDynamicEnhanced(type as any, value);
+          }
+        } else {
+          // 기본 타입 처리 (string, number, boolean, Date 등)
+          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
+          if (propertyType === Date) {
+            (instance as any)[classKey] = new Date(value);
+          } else {
+            (instance as any)[classKey] = value;
+          }
+        }
+      } catch (error: any) {
+        console.error(`Error mapping property '${classKey}':`, error);
+        throw new MappingError(`Failed to map property '${classKey}': ${error.message}`);
       }
     }
   });
@@ -35,32 +58,53 @@ export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
 }
 
 /**
- * 클래스 인스턴스를 JSON 객체로 변환하는 함수
+ * 클래스 인스턴스를 JSON 객체로 변환하는 함수 (향상된 버전)
  * @param instance 클래스 인스턴스
  * @returns JSON 객체
  */
-export function classToPlainDynamic<T>(instance: T): any {
+export function classToPlainDynamicEnhanced<T>(instance: T): any {
   const cls = (instance as any).constructor;
   const mappings = MappingRegistry.getMappings(cls);
 
   if (!mappings) {
-    throw new Error(`No mappings registered for class ${cls.name}`);
+    throw new MappingError(`No mappings registered for class ${cls.name}`);
   }
 
   const plainObj: any = {};
 
   mappings.forEach((mapping) => {
-    const { jsonKey, classKey } = mapping;
+    const { jsonKey, classKey, type } = mapping;
     const value = (instance as any)[classKey];
 
     if (value !== undefined) {
-      const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
-
-      if (typeof propertyType === 'function' && propertyType !== String && propertyType !== Number && propertyType !== Boolean && propertyType !== Date) {
-        // 재귀적으로 변환
-        plainObj[jsonKey] = classToPlainDynamic(value);
-      } else {
-        plainObj[jsonKey] = value;
+      try {
+        if (type) {
+          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
+          if (propertyType === Array && Array.isArray(value)) {
+            if (!type) {
+              throw new MappingError(`Type information is missing for array property '${classKey}'`);
+            }
+            // 배열 요소 타입으로 변환
+            plainObj[jsonKey] = value.map((item: any) => {
+              return classToPlainDynamicEnhanced(item);
+            });
+          }
+          else {
+            // 재귀적으로 변환
+            plainObj[jsonKey] = classToPlainDynamicEnhanced(value);
+          }
+        } else {
+          // 기본 타입 처리
+          const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
+          if (propertyType === Date) {
+            (plainObj as any)[jsonKey] = (value as Date).toISOString();
+          } else {
+            (plainObj as any)[jsonKey] = value;
+          }
+        }
+      } catch (error: any) {
+        console.error(`Error mapping property '${classKey}':`, error);
+        throw new MappingError(`Failed to map property '${classKey}': ${error.message}`);
       }
     }
   });
