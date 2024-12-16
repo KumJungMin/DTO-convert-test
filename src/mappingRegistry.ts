@@ -1,4 +1,3 @@
-// src/mappingRegistry.ts
 import { KeyMapping } from './decorators/JsonProperty';
 
 /**
@@ -24,6 +23,8 @@ class MappingRegistry {
    * 클래스에 대한 매핑 정보를 등록
    * @param cls 클래스 생성자
    * @param mappings 매핑 정보 배열
+   * -> 클래스 생성자와 매핑 정보 배열을 등록합니다.
+   * -> 클래스 생성자는 키로 사용되고, 매핑 정보 배열은 값으로 사용됩니다.
    */
   registerMapping(cls: Function, mappings: KeyMapping[]) {
     this.mappings.set(cls, mappings);
@@ -33,6 +34,8 @@ class MappingRegistry {
    * 클래스에 대한 매핑 정보를 가져옴
    * @param cls 클래스 생성자
    * @returns 매핑 정보 배열
+   * -> 클래스 생성자에 대한 매핑 정보 배열을 반환합니다.
+   * -> 클래스 생성자가 등록되지 않은 경우 undefined를 반환합니다.
    */
   getMappings(cls: Function): KeyMapping[] | undefined {
     return this.mappings.get(cls);

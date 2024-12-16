@@ -21,6 +21,13 @@ export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
 
     if (value !== undefined) {
       try {
+        /** 
+         * Reflect.getMetadata(메타데이터 키, 대상, 속성)
+         * 객체나 속성에 저장된 메타데이터를 가져옵니다.
+         * - design:type': TypeScript 컴파일러가 자동으로 생성한 메타데이터 키로, 속성의 타입을 나타냅니다.
+         * - instance: 메타데이터를 가져올 대상 객체입니다.
+         * - classKey: 메타데이터를 가져올 속성 이름입니다.
+         * */ 
         const propertyType = Reflect.getMetadata('design:type', instance as any, classKey);
 
         if (type) {
