@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { MemberInfoDto } from './dtos/MemberInfoDto';
 import { AddressDto } from './dtos/AddressDto';
 import { ItemDto } from './dtos/ItemDto';
-import { plainToClassDynamic, classToPlainDynamic } from './transformer';
+import { plainToClass, classToPlain } from './transformer';
 
 function main() {
   // === API 응답(JSON) ===
@@ -19,7 +19,7 @@ function main() {
   };
 
   // JSON → 클래스 인스턴스
-  const memberInfoInstance = plainToClassDynamic(MemberInfoDto, apiResponse);
+  const memberInfoInstance = plainToClass(MemberInfoDto, apiResponse);
 
   console.log('--- JSON → 클래스 인스턴스 ---');
   console.log('instance instanceof MemberInfoDto:', memberInfoInstance instanceof MemberInfoDto); // true
@@ -40,7 +40,7 @@ function main() {
   memberInfoInstance.address.city = '부산';
   memberInfoInstance.items.push(new ItemDto('Keyboard', 1));
 
-  const requestPayload = classToPlainDynamic(memberInfoInstance);
+  const requestPayload = classToPlain(memberInfoInstance);
   console.log('\n--- 클래스 인스턴스 → JSON ---');
   console.log(JSON.stringify(requestPayload, null, 2));
   /*

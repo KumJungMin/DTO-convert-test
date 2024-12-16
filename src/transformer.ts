@@ -7,7 +7,7 @@ import { MappingError } from './errors/MappingError';
  * @param plainObj 변환할 JSON 객체
  * @returns 클래스 인스턴스
  */
-export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
+export function plainToClass<T>(cls: new () => T, plainObj: any): T {
   const instance = new cls();
   const mappings = MappingRegistry.getMappings(cls);
 
@@ -30,10 +30,10 @@ export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
               throw new MappingError(`Type information is missing for array property '${classKey}'`);
             }
             (instance as any)[classKey] = value.map((item: any) => {
-              return plainToClassDynamic(type as any, item);
+              return plainToClass(type as any, item);
             });
           } else {
-            (instance as any)[classKey] = plainToClassDynamic(type as any, value);
+            (instance as any)[classKey] = plainToClass(type as any, value);
           }
         } else {
           if (propertyType === Date) {
@@ -57,7 +57,7 @@ export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
  * @param instance 클래스 인스턴스
  * @returns JSON 객체
  */
-export function classToPlainDynamic<T>(instance: T): any {
+export function classToPlain<T>(instance: T): any {
   const cls = (instance as any).constructor;
   const mappings = MappingRegistry.getMappings(cls);
 
@@ -81,11 +81,11 @@ export function classToPlainDynamic<T>(instance: T): any {
               throw new MappingError(`Type information is missing for array property '${classKey}'`);
             }
             plainObj[jsonKey] = value.map((item: any) => {
-              return classToPlainDynamic(item);
+              return classToPlain(item);
             });
           }
           else {
-            plainObj[jsonKey] = classToPlainDynamic(value);
+            plainObj[jsonKey] = classToPlain(value);
           }
         } else {
           if (propertyType === Date) {
