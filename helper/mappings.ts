@@ -3,7 +3,13 @@ export interface KeyMapping {
   classKey: string;
 }
 
-// 필요한 매핑을 배열로 정의
-export const memberInfoMapping: KeyMapping[] = [
+// 각 DTO에 대한 매핑 정의
+export const memberInfoMappings: KeyMapping[] = [
   { jsonKey: 'MBR_INFO', classKey: 'memberInfo' },
+  { jsonKey: 'ADDRESS', classKey: 'address' },
+];
+
+export const addressMappings: KeyMapping[] = [
+  { jsonKey: 'STREET', classKey: 'street' },
+  { jsonKey: 'CITY', classKey: 'city' },
 ];
