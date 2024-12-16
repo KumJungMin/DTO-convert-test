@@ -12,7 +12,9 @@ function main() {
   // JSON → 클래스 인스턴스
   const memberInfoInstance = plainToClass(MemberInfoDto, apiResponse, memberInfoMapping);
   console.log(memberInfoInstance instanceof MemberInfoDto);
+  // true
   console.log(memberInfoInstance.memberInfo);
+  // 홍길동
 
   // === 클래스 인스턴스 → API 요청(JSON) ===
   memberInfoInstance.memberInfo = '김철수';
