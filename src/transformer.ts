@@ -7,7 +7,7 @@ import { MappingError } from './errors/MappingError';
  * @param plainObj 변환할 JSON 객체
  * @returns 클래스 인스턴스
  */
-export function plainToClassDynamicEnhanced<T>(cls: new () => T, plainObj: any): T {
+export function plainToClassDynamic<T>(cls: new () => T, plainObj: any): T {
   const instance = new cls();
   const mappings = MappingRegistry.getMappings(cls);
 
@@ -31,11 +31,11 @@ export function plainToClassDynamicEnhanced<T>(cls: new () => T, plainObj: any):
             }
             // 배열 요소 타입으로 변환
             (instance as any)[classKey] = value.map((item: any) => {
-              return plainToClassDynamicEnhanced(type as any, item);
+              return plainToClassDynamic(type as any, item);
             });
           } else {
             // 중첩된 객체인지 확인 - 재귀적으로 변환
-            (instance as any)[classKey] = plainToClassDynamicEnhanced(type as any, value);
+            (instance as any)[classKey] = plainToClassDynamic(type as any, value);
           }
         } else {
           // 기본 타입 처리 (string, number, boolean, Date 등)
@@ -60,7 +60,7 @@ export function plainToClassDynamicEnhanced<T>(cls: new () => T, plainObj: any):
  * @param instance 클래스 인스턴스
  * @returns JSON 객체
  */
-export function classToPlainDynamicEnhanced<T>(instance: T): any {
+export function classToPlainDynamic<T>(instance: T): any {
   const cls = (instance as any).constructor;
   const mappings = MappingRegistry.getMappings(cls);
 
@@ -85,12 +85,12 @@ export function classToPlainDynamicEnhanced<T>(instance: T): any {
             }
             // 배열 요소 타입으로 변환
             plainObj[jsonKey] = value.map((item: any) => {
-              return classToPlainDynamicEnhanced(item);
+              return classToPlainDynamic(item);
             });
           }
           else {
             // 재귀적으로 변환
-            plainObj[jsonKey] = classToPlainDynamicEnhanced(value);
+            plainObj[jsonKey] = classToPlainDynamic(value);
           }
         } else {
           // 기본 타입 처리

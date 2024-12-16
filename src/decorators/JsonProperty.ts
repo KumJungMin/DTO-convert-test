@@ -4,9 +4,9 @@ import MappingRegistry from '../mappingRegistry';
 const JSON_PROPERTY_KEY = Symbol('jsonProperty');
 
 /**
- * EnhancedKeyMapping 인터페이스 정의
+ * KeyMapping 인터페이스 정의
  */
-export interface EnhancedKeyMapping {
+export interface KeyMapping {
   jsonKey: string;
   classKey: string;
   type?: Function;
@@ -26,7 +26,7 @@ export function JsonProperty(jsonKey: string, type?: Function) {
     const cls = target.constructor;
 
      // 기존 매핑 정보 가져오기
-    const mappings: EnhancedKeyMapping[] = MappingRegistry.getMappings(cls) || [];
+    const mappings: KeyMapping[] = MappingRegistry.getMappings(cls) || [];
 
      // 새로운 매핑 정보 추가
     mappings.push({ jsonKey, classKey: propertyKey, type });

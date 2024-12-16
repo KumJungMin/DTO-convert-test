@@ -1,12 +1,12 @@
 // src/mappingRegistry.ts
-import { EnhancedKeyMapping } from './decorators/JsonProperty';
+import { KeyMapping } from './decorators/JsonProperty';
 
 /**
  * 매핑 레지스트리를 관리하는 클래스 (싱글톤 패턴)
  */
 class MappingRegistry {
   private static instance: MappingRegistry;
-  private mappings: Map<Function, EnhancedKeyMapping[]> = new Map();
+  private mappings: Map<Function, KeyMapping[]> = new Map();
 
   private constructor() {}
 
@@ -25,7 +25,7 @@ class MappingRegistry {
    * @param cls 클래스 생성자
    * @param mappings 매핑 정보 배열
    */
-  registerMapping(cls: Function, mappings: EnhancedKeyMapping[]) {
+  registerMapping(cls: Function, mappings: KeyMapping[]) {
     this.mappings.set(cls, mappings);
   }
 
@@ -34,7 +34,7 @@ class MappingRegistry {
    * @param cls 클래스 생성자
    * @returns 매핑 정보 배열
    */
-  getMappings(cls: Function): EnhancedKeyMapping[] | undefined {
+  getMappings(cls: Function): KeyMapping[] | undefined {
     return this.mappings.get(cls);
   }
 }
